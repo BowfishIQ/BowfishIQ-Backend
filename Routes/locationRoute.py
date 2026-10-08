@@ -1,11 +1,23 @@
-from typing import Optional
+from typing import Literal, Optional
 
-from fastapi import APIRouter, Body, Request
+from fastapi import APIRouter, Body, Query, Request
 
 import Services.locationService as locationService
 from Models.MapLocation import MapLocationModel, MapLocationUpdateModel
 
 router = APIRouter()
+
+
+@router.get("/get_wind_speed/", tags=["LOCATION MANAGEMENT"])
+def get_wind_speed(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+    wind_speed_unit: Literal["kmh", "ms", "mph", "kn"] = "mph",
+    timezone: str = "auto",
+):
+    return locationService.get_wind_speed(
+        latitude, longitude, wind_speed_unit, timezone
+    )
 
 
 @router.get("/get_all_country/", tags=["LOCATION MANAGEMENT"])

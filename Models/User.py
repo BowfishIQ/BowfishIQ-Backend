@@ -10,8 +10,9 @@ class UserModel(BaseModel):
     last_name: Optional[str] = None
     email: Optional[str] = None
     google_id: Optional[str] = None
+    apple_id: Optional[str] = None
     password: Optional[str] = None
-    login_type: Optional[int] = Field(default=None, ge=1, le=2)
+    login_type: Optional[int] = Field(default=None, ge=1, le=3) #1 = google, 2 = email, 3= apple
 
     # profile_image: Optional[str] = None
 

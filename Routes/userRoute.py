@@ -83,6 +83,7 @@ def login_user(
     login_type: Optional[int] = Body(None),
     google_id: Optional[str] = Body(None),
     password: Optional[str] = Body(None),
+    apple_id: Optional[str] = Body(None),
 ):
     return userService.login(
         request,
@@ -91,6 +92,7 @@ def login_user(
         login_type=login_type,
         google_id=google_id,
         password=password,
+        apple_id=apple_id,
     )
 
 

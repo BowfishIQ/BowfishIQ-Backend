@@ -65,6 +65,7 @@ def create(request, user_data):
         data = user_data.model_dump()
         email = (data.get("email") or "").strip().lower()
         google_id = (data.get("google_id") or "").strip()
+        apple_id = (data.get("apple_id") or "").strip()
         password = data.get("password") or ""
         login_type = data.pop("login_type", None)
 
@@ -74,38 +75,43 @@ def create(request, user_data):
         if login_type is None:
             if google_id:
                 login_type = 1
+            elif apple_id:
+                login_type = 3
             elif password:
                 login_type = 2
             else:
                 return {
-                    "message": "Google ID or password is required",
+                    "message": "Google ID, Apple ID or password is required",
                     "status": "error",
                 }
 
-        if login_type == 1:
-            if not google_id:
-                return {"message": "Google ID is required", "status": "error"}
+        if login_type in (1, 3):
+            provider = "Google" if login_type == 1 else "Apple"
+            id_field = "google_id" if login_type == 1 else "apple_id"
+            provider_id = google_id if login_type == 1 else apple_id
+            if not provider_id:
+                return {"message": f"{provider} ID is required", "status": "error"}
 
-            existing_user = collection.find_one({"google_id": google_id})
+            existing_user = collection.find_one({id_field: provider_id})
             if existing_user and existing_user.get("email", "").lower() != email:
                 return {
-                    "message": "Google ID is already used by another user",
+                    "message": f"{provider} ID is already used by another user",
                     "status": "error",
                 }
             if existing_user is None:
                 existing_user = check_email_exist(email)
 
             if existing_user:
-                stored_google_id = existing_user.get("google_id")
-                if stored_google_id and stored_google_id != google_id:
+                stored_provider_id = existing_user.get(id_field)
+                if stored_provider_id and stored_provider_id != provider_id:
                     return {
-                        "message": "Email is linked with a different Google ID",
+                        "message": f"Email is linked with a different {provider} ID",
                         "status": "error",
                     }
 
-                updates = {"verification_status": 1, "login_type": 1}
-                if not stored_google_id:
-                    updates["google_id"] = google_id
+                updates = {"verification_status": 1, "login_type": login_type}
+                if not stored_provider_id:
+                    updates[id_field] = provider_id
                 for field in ("name", "first_name", "last_name"):
                     if data.get(field) is not None:
                         updates[field] = data[field]
@@ -115,7 +121,8 @@ def create(request, user_data):
                 existing_user.update(updates)
                 return user_login_response(request, existing_user, existing_user["email"])
 
-            data["google_id"] = google_id
+            data["google_id"] = google_id if login_type == 1 else None
+            data["apple_id"] = apple_id if login_type == 3 else None
             data["password"] = None
         elif login_type == 2:
             if not password:
@@ -123,6 +130,7 @@ def create(request, user_data):
             if check_email_exist(email):
                 return {"message": "Email already exists", "status": "error"}
             data["google_id"] = None
+            data["apple_id"] = None
             data["password"] = pwd_context.hash(password)
         else:
             return {"message": "Invalid login type", "status": "error"}
@@ -176,6 +184,7 @@ def login(
     login_type=None,
     google_id=None,
     password=None,
+    apple_id=None,
 ):
     try:
         email = (email or "").strip().lower()
@@ -191,6 +200,8 @@ def login(
         if login_type is None:
             if google_id:
                 login_type = 1
+            elif apple_id:
+                login_type = 3
             elif password:
                 login_type = 2
 
@@ -200,6 +211,12 @@ def login(
                 return {"message": "Google ID is required", "status": "error"}
             if user.get("google_id") != google_id:
                 return {"message": "Invalid Google credentials", "status": "error"}
+        elif login_type == 3:
+            apple_id = (apple_id or "").strip()
+            if not apple_id:
+                return {"message": "Apple ID is required", "status": "error"}
+            if user.get("apple_id") != apple_id:
+                return {"message": "Invalid Apple credentials", "status": "error"}
         elif login_type == 2:
             stored_password = user.get("password")
             if not password:
@@ -254,6 +271,7 @@ def _user_projection():
         "last_name": 1,
         "email": 1,
         "google_id": 1,
+        "apple_id": 1,
         "profile_image": 1,
         "description": 1,
         "gender": 1,

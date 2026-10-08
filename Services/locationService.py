@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import requests
 from bson import ObjectId
 
 from db import db
@@ -7,6 +8,52 @@ from .common import paginate
 
 collection = db["location"]
 map_location_collection = db["map_location"]
+
+
+def get_wind_speed(latitude, longitude, wind_speed_unit="mph", timezone="auto"):
+    try:
+        response = requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "current": "wind_speed_10m,wind_direction_10m",
+                "wind_speed_unit": wind_speed_unit,
+                "timezone": timezone,
+            },
+            timeout=10,
+        )
+        response.raise_for_status()
+        weather = response.json()
+        current = weather["current"]
+        speed = current["wind_speed_10m"]
+        if speed is None:
+            return {"message": "Wind speed is unavailable", "status": "error"}
+        direction_degrees = current.get("wind_direction_10m")
+        compass_directions = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
+        direction = (
+            compass_directions[int((direction_degrees % 360 + 22.5) // 45) % 8]
+            if direction_degrees is not None
+            else None
+        )
+        return {
+            "data": {
+                "latitude": latitude,
+                "longitude": longitude,
+                "wind_speed": speed,
+                "wind_speed_unit": weather["current_units"]["wind_speed_10m"],
+                "wind_direction": direction,
+                "time": current.get("time"),
+                "timezone": weather.get("timezone"),
+            },
+            "status": "success",
+        }
+    except requests.Timeout:
+        return {"message": "Weather service request timed out", "status": "error"}
+    except requests.RequestException:
+        return {"message": "Unable to fetch wind speed", "status": "error"}
+    except (ValueError, KeyError, TypeError):
+        return {"message": "Invalid weather service response", "status": "error"}
 
 
 def _active_map_location_filter():
