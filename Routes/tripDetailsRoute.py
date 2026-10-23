@@ -1,11 +1,33 @@
 from typing import Optional
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends, Path, Query
 
-from Models.TripDetails import TripDetailsModel, TripDetailsUpdateModel
+from Models.TripDetails import TripDetailsModel, TripDetailsUpdateModel, UserTripFilters
 from Services import tripDetailsService
+from Services import userTripService
 
 router = APIRouter(tags=["TRIP DETAILS MANAGEMENT"])
+
+
+@router.get("/users/{user_id}/trip-details")
+def get_user_trip_details(
+    user_id: str = Path(..., min_length=1),
+    filters: UserTripFilters = Depends(),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$"),
+):
+    """Paginated owned/crew trips, sorted by trip date. Omit dates for all days."""
+    return userTripService.get_user_trip_details(user_id, filters, page, limit, sort_order)
+
+
+@router.get("/users/{user_id}/trip-details/summary")
+def get_user_trip_summary(
+    user_id: str = Path(..., min_length=1),
+    filters: UserTripFilters = Depends(),
+):
+    """Counts over every matching trip, independent of list pagination."""
+    return userTripService.get_user_trip_summary(user_id, filters)
 
 
 @router.post("/trip-details/")

@@ -1,0 +1,44 @@
+[
+  {
+    "_id": {
+      "$oid": "bf3000000000000000000001"
+    },
+    "name": "Demo Lake - North Cove",
+    "country": "United States",
+    "state": "Missouri",
+    "city": "Demo City",
+    "zip_code": "00000",
+    "latitude": "38.2500",
+    "longitude": "-93.4000",
+    "status": 1,
+    "deleted_at": null,
+    "deleted_by": null,
+    "created_at": "2026-09-20 12:00:00",
+    "created_date": "2026-09-20",
+    "created_time": "12:00:00",
+    "created_by": "demo:river-arrow-crew:v1",
+    "updated_at": null,
+    "updated_by": null
+  },
+  {
+    "_id": {
+      "$oid": "bf3000000000000000000002"
+    },
+    "name": "Demo River - South Bend",
+    "country": "United States",
+    "state": "Missouri",
+    "city": "Demo City",
+    "zip_code": "00000",
+    "latitude": "38.1800",
+    "longitude": "-93.3500",
+    "status": 1,
+    "deleted_at": null,
+    "deleted_by": null,
+    "created_at": "2026-09-20 12:00:00",
+    "created_date": "2026-09-20",
+    "created_time": "12:00:00",
+    "created_by": "demo:river-arrow-crew:v1",
+    "updated_at": null,
+    "updated_by": null
+  }
+]

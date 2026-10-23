@@ -1,0 +1,692 @@
+[
+  {
+    "_id": {
+      "$oid": "bf2000000000000000000001"
+    },
+    "user_id": "bf1000000000000000000001",
+    "crew_details": [
+      {
+        "user_id": "bf1000000000000000000001",
+        "posuser_role": "1",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000002",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000003",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000004",
+        "posuser_role": "3",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000005",
+        "posuser_role": "4",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000006",
+        "posuser_role": "5",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000007",
+        "posuser_role": "2",
+        "status": 1
+      }
+    ],
+    "trip_type": 1,
+    "water_type": 1,
+    "water_salinity": 1,
+    "lake_locations": [
+      "bf3000000000000000000001"
+    ],
+    "lunch_ramp": "1",
+    "area_fished": "North cove shallows",
+    "date": "25-09-2026",
+    "start_time": "18:30:00",
+    "end_time": "22:30:00",
+    "fish_shot_details": [
+      {
+        "fish_id": null,
+        "name": "Carp",
+        "count": 12,
+        "largest_fish": 18.5,
+        "largest_fish_length": 34.0,
+        "status": 1
+      },
+      {
+        "fish_id": null,
+        "name": "Buffalo",
+        "count": 4,
+        "largest_fish": 16.7,
+        "largest_fish_length": 30.6,
+        "status": 1
+      },
+      {
+        "fish_id": null,
+        "name": "Gar",
+        "count": 2,
+        "largest_fish": 14.8,
+        "largest_fish_length": 27.2,
+        "status": 1
+      }
+    ],
+    "team_details": [
+      {
+        "name": "Alex Morgan",
+        "role": "1",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jamie Reed",
+        "role": "2",
+        "shot_count": 6,
+        "status": 1
+      },
+      {
+        "name": "Taylor Brooks",
+        "role": "2",
+        "shot_count": 6,
+        "status": 1
+      },
+      {
+        "name": "Jordan Hayes",
+        "role": "3",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Casey Parker",
+        "role": "4",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Riley Bennett",
+        "role": "5",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Sam Carter",
+        "role": "2",
+        "shot_count": 6,
+        "status": 1
+      }
+    ],
+    "fish_see_not_shot_count": 7,
+    "water_temp": 72.0,
+    "water_clarity": 1,
+    "water_movement": 1,
+    "wind": 1,
+    "wind_speed": 3.0,
+    "wind_direction": 1,
+    "water_level": 2,
+    "water_base": 1,
+    "water_depth": 4.0,
+    "fish_location": "1",
+    "trip_outcome": "Landed 18 fish",
+    "trip_lessons": "Shallow sheltered water had the best visibility.",
+    "trip_notes": "demo:river-arrow-crew:v1 | Team: River Arrow Crew | Demo trip 1",
+    "images": [],
+    "status": 1,
+    "deleted_at": null,
+    "deleted_by": null,
+    "created_at": "2026-09-25 23:00:00",
+    "created_date": "2026-09-25",
+    "created_time": "23:00:00",
+    "created_by": "bf1000000000000000000001",
+    "updated_at": null,
+    "updated_by": null
+  },
+  {
+    "_id": {
+      "$oid": "bf2000000000000000000002"
+    },
+    "user_id": "bf1000000000000000000002",
+    "crew_details": [
+      {
+        "user_id": "bf1000000000000000000001",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000002",
+        "posuser_role": "1",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000003",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000004",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000005",
+        "posuser_role": "3",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000006",
+        "posuser_role": "4",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000007",
+        "posuser_role": "5",
+        "status": 1
+      }
+    ],
+    "trip_type": 2,
+    "water_type": 2,
+    "water_salinity": 1,
+    "lake_locations": [
+      "bf3000000000000000000002"
+    ],
+    "lunch_ramp": "2",
+    "area_fished": "South river bend",
+    "date": "28-09-2026",
+    "start_time": "18:30:00",
+    "end_time": "22:30:00",
+    "fish_shot_details": [],
+    "team_details": [
+      {
+        "name": "Alex Morgan",
+        "role": "2",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jamie Reed",
+        "role": "1",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Taylor Brooks",
+        "role": "2",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jordan Hayes",
+        "role": "2",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Casey Parker",
+        "role": "3",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Riley Bennett",
+        "role": "4",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Sam Carter",
+        "role": "5",
+        "shot_count": 0,
+        "status": 1
+      }
+    ],
+    "fish_see_not_shot_count": 26,
+    "water_temp": 70.5,
+    "water_clarity": 2,
+    "water_movement": 2,
+    "wind": 2,
+    "wind_speed": 5.0,
+    "wind_direction": 2,
+    "water_level": 2,
+    "water_base": 1,
+    "water_depth": 5.0,
+    "fish_location": "2",
+    "trip_outcome": "Scouted access and fish activity; no fish shot",
+    "trip_lessons": "Shallow sheltered water had the best visibility.",
+    "trip_notes": "demo:river-arrow-crew:v1 | Team: River Arrow Crew | Demo trip 2",
+    "images": [],
+    "status": 1,
+    "deleted_at": null,
+    "deleted_by": null,
+    "created_at": "2026-09-28 23:00:00",
+    "created_date": "2026-09-28",
+    "created_time": "23:00:00",
+    "created_by": "bf1000000000000000000002",
+    "updated_at": null,
+    "updated_by": null
+  },
+  {
+    "_id": {
+      "$oid": "bf2000000000000000000003"
+    },
+    "user_id": "bf1000000000000000000003",
+    "crew_details": [
+      {
+        "user_id": "bf1000000000000000000001",
+        "posuser_role": "5",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000002",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000003",
+        "posuser_role": "1",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000004",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000005",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000006",
+        "posuser_role": "3",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000007",
+        "posuser_role": "4",
+        "status": 1
+      }
+    ],
+    "trip_type": 1,
+    "water_type": 2,
+    "water_salinity": 1,
+    "lake_locations": [
+      "bf3000000000000000000002"
+    ],
+    "lunch_ramp": "3",
+    "area_fished": "South river bend",
+    "date": "02-10-2026",
+    "start_time": "18:30:00",
+    "end_time": "22:30:00",
+    "fish_shot_details": [
+      {
+        "fish_id": null,
+        "name": "Carp",
+        "count": 15,
+        "largest_fish": 21.0,
+        "largest_fish_length": 38.0,
+        "status": 1
+      },
+      {
+        "fish_id": null,
+        "name": "Buffalo",
+        "count": 6,
+        "largest_fish": 18.9,
+        "largest_fish_length": 34.2,
+        "status": 1
+      },
+      {
+        "fish_id": null,
+        "name": "Gar",
+        "count": 3,
+        "largest_fish": 16.8,
+        "largest_fish_length": 30.4,
+        "status": 1
+      }
+    ],
+    "team_details": [
+      {
+        "name": "Alex Morgan",
+        "role": "5",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jamie Reed",
+        "role": "2",
+        "shot_count": 8,
+        "status": 1
+      },
+      {
+        "name": "Taylor Brooks",
+        "role": "1",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jordan Hayes",
+        "role": "2",
+        "shot_count": 8,
+        "status": 1
+      },
+      {
+        "name": "Casey Parker",
+        "role": "2",
+        "shot_count": 8,
+        "status": 1
+      },
+      {
+        "name": "Riley Bennett",
+        "role": "3",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Sam Carter",
+        "role": "4",
+        "shot_count": 0,
+        "status": 1
+      }
+    ],
+    "fish_see_not_shot_count": 10,
+    "water_temp": 69.0,
+    "water_clarity": 3,
+    "water_movement": 2,
+    "wind": 3,
+    "wind_speed": 7.0,
+    "wind_direction": 3,
+    "water_level": 2,
+    "water_base": 1,
+    "water_depth": 6.0,
+    "fish_location": "3",
+    "trip_outcome": "Landed 24 fish",
+    "trip_lessons": "Shallow sheltered water had the best visibility.",
+    "trip_notes": "demo:river-arrow-crew:v1 | Team: River Arrow Crew | Demo trip 3",
+    "images": [],
+    "status": 1,
+    "deleted_at": null,
+    "deleted_by": null,
+    "created_at": "2026-10-02 23:00:00",
+    "created_date": "2026-10-02",
+    "created_time": "23:00:00",
+    "created_by": "bf1000000000000000000003",
+    "updated_at": null,
+    "updated_by": null
+  },
+  {
+    "_id": {
+      "$oid": "bf2000000000000000000004"
+    },
+    "user_id": "bf1000000000000000000001",
+    "crew_details": [
+      {
+        "user_id": "bf1000000000000000000001",
+        "posuser_role": "1",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000002",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000003",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000004",
+        "posuser_role": "3",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000005",
+        "posuser_role": "4",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000006",
+        "posuser_role": "5",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000007",
+        "posuser_role": "2",
+        "status": 1
+      }
+    ],
+    "trip_type": 2,
+    "water_type": 1,
+    "water_salinity": 1,
+    "lake_locations": [
+      "bf3000000000000000000001"
+    ],
+    "lunch_ramp": "1",
+    "area_fished": "North cove shallows",
+    "date": "07-10-2026",
+    "start_time": "18:30:00",
+    "end_time": "22:30:00",
+    "fish_shot_details": [],
+    "team_details": [
+      {
+        "name": "Alex Morgan",
+        "role": "1",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jamie Reed",
+        "role": "2",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Taylor Brooks",
+        "role": "2",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jordan Hayes",
+        "role": "3",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Casey Parker",
+        "role": "4",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Riley Bennett",
+        "role": "5",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Sam Carter",
+        "role": "2",
+        "shot_count": 0,
+        "status": 1
+      }
+    ],
+    "fish_see_not_shot_count": 32,
+    "water_temp": 67.5,
+    "water_clarity": 4,
+    "water_movement": 1,
+    "wind": 1,
+    "wind_speed": 9.0,
+    "wind_direction": 4,
+    "water_level": 2,
+    "water_base": 1,
+    "water_depth": 7.0,
+    "fish_location": "4",
+    "trip_outcome": "Scouted access and fish activity; no fish shot",
+    "trip_lessons": "Shallow sheltered water had the best visibility.",
+    "trip_notes": "demo:river-arrow-crew:v1 | Team: River Arrow Crew | Demo trip 4",
+    "images": [],
+    "status": 1,
+    "deleted_at": null,
+    "deleted_by": null,
+    "created_at": "2026-10-07 23:00:00",
+    "created_date": "2026-10-07",
+    "created_time": "23:00:00",
+    "created_by": "bf1000000000000000000001",
+    "updated_at": null,
+    "updated_by": null
+  },
+  {
+    "_id": {
+      "$oid": "bf2000000000000000000005"
+    },
+    "user_id": "bf1000000000000000000004",
+    "crew_details": [
+      {
+        "user_id": "bf1000000000000000000001",
+        "posuser_role": "4",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000002",
+        "posuser_role": "5",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000003",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000004",
+        "posuser_role": "1",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000005",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000006",
+        "posuser_role": "2",
+        "status": 1
+      },
+      {
+        "user_id": "bf1000000000000000000007",
+        "posuser_role": "3",
+        "status": 1
+      }
+    ],
+    "trip_type": 1,
+    "water_type": 1,
+    "water_salinity": 1,
+    "lake_locations": [
+      "bf3000000000000000000001"
+    ],
+    "lunch_ramp": "2",
+    "area_fished": "North cove shallows",
+    "date": "11-10-2026",
+    "start_time": "18:30:00",
+    "end_time": "22:30:00",
+    "fish_shot_details": [
+      {
+        "fish_id": null,
+        "name": "Carp",
+        "count": 20,
+        "largest_fish": 24.5,
+        "largest_fish_length": 42.0,
+        "status": 1
+      },
+      {
+        "fish_id": null,
+        "name": "Buffalo",
+        "count": 7,
+        "largest_fish": 22.1,
+        "largest_fish_length": 37.8,
+        "status": 1
+      },
+      {
+        "fish_id": null,
+        "name": "Gar",
+        "count": 4,
+        "largest_fish": 19.6,
+        "largest_fish_length": 33.6,
+        "status": 1
+      }
+    ],
+    "team_details": [
+      {
+        "name": "Alex Morgan",
+        "role": "4",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Jamie Reed",
+        "role": "5",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Taylor Brooks",
+        "role": "2",
+        "shot_count": 11,
+        "status": 1
+      },
+      {
+        "name": "Jordan Hayes",
+        "role": "1",
+        "shot_count": 0,
+        "status": 1
+      },
+      {
+        "name": "Casey Parker",
+        "role": "2",
+        "shot_count": 10,
+        "status": 1
+      },
+      {
+        "name": "Riley Bennett",
+        "role": "2",
+        "shot_count": 10,
+        "status": 1
+      },
+      {
+        "name": "Sam Carter",
+        "role": "3",
+        "shot_count": 0,
+        "status": 1
+      }
+    ],
+    "fish_see_not_shot_count": 12,
+    "water_temp": 66.0,
+    "water_clarity": 1,
+    "water_movement": 1,
+    "wind": 2,
+    "wind_speed": 11.0,
+    "wind_direction": 5,
+    "water_level": 2,
+    "water_base": 1,
+    "water_depth": 8.0,
+    "fish_location": "5",
+    "trip_outcome": "Landed 31 fish",
+    "trip_lessons": "Shallow sheltered water had the best visibility.",
+    "trip_notes": "demo:river-arrow-crew:v1 | Team: River Arrow Crew | Demo trip 5",
+    "images": [],
+    "status": 1,
+    "deleted_at": null,
+    "deleted_by": null,
+    "created_at": "2026-10-11 23:00:00",
+    "created_date": "2026-10-11",
+    "created_time": "23:00:00",
+    "created_by": "bf1000000000000000000004",
+    "updated_at": null,
+    "updated_by": null
+  }
+]

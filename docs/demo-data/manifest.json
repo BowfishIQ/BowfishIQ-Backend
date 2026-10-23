@@ -1,0 +1,76 @@
+{
+  "team_name": "River Arrow Crew",
+  "demo_password": "BowfishDemo@123",
+  "users": [
+    {
+      "id": "bf1000000000000000000001",
+      "name": "Alex Morgan",
+      "email": "alex.morgan@example.com"
+    },
+    {
+      "id": "bf1000000000000000000002",
+      "name": "Jamie Reed",
+      "email": "jamie.reed@example.com"
+    },
+    {
+      "id": "bf1000000000000000000003",
+      "name": "Taylor Brooks",
+      "email": "taylor.brooks@example.com"
+    },
+    {
+      "id": "bf1000000000000000000004",
+      "name": "Jordan Hayes",
+      "email": "jordan.hayes@example.com"
+    },
+    {
+      "id": "bf1000000000000000000005",
+      "name": "Casey Parker",
+      "email": "casey.parker@example.com"
+    },
+    {
+      "id": "bf1000000000000000000006",
+      "name": "Riley Bennett",
+      "email": "riley.bennett@example.com"
+    },
+    {
+      "id": "bf1000000000000000000007",
+      "name": "Sam Carter",
+      "email": "sam.carter@example.com"
+    }
+  ],
+  "trip_ids": [
+    "bf2000000000000000000001",
+    "bf2000000000000000000002",
+    "bf2000000000000000000003",
+    "bf2000000000000000000004",
+    "bf2000000000000000000005"
+  ],
+  "location_ids": [
+    "bf3000000000000000000001",
+    "bf3000000000000000000002"
+  ],
+  "expected_all_team_summary": {
+    "total_trips": 5,
+    "regular_trips": 3,
+    "scouting_trips": 2,
+    "total_fish_caught": 73,
+    "total_team_shots": 73,
+    "total_fish_seen_not_shot": 87,
+    "total_crew_entries": 35,
+    "total_team_entries": 35,
+    "fish_counts": {
+      "Carp": 47,
+      "Buffalo": 17,
+      "Gar": 9
+    }
+  },
+  "expected_alex_role_counts": {
+    "captain": 2,
+    "shooter": 1,
+    "spotter": 0,
+    "guest": 1,
+    "other": 1
+  },
+  "example_list": "/users/bf1000000000000000000001/trip-details?page=1&limit=2",
+  "example_summary": "/users/bf1000000000000000000001/trip-details/summary"
+}

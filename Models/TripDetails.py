@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, model_validator
-from typing import Optional
+from typing import Literal, Optional
 from datetime import datetime
 import json
 
@@ -133,3 +133,18 @@ class TripDetailsUpdateModel(TripDetailsModel):
     created_at: Optional[str] = None
     created_date: Optional[str] = None
     created_time: Optional[str] = None
+
+
+class UserTripFilters(BaseModel):
+    """Shared query parameters for user trip lists and summaries."""
+
+    date: Optional[str] = Field(default=None, description="Exact trip date: DD-MM-YYYY or YYYY-MM-DD")
+    start_date: Optional[str] = Field(default=None, description="Inclusive first trip date")
+    end_date: Optional[str] = Field(default=None, description="Inclusive last trip date")
+    trip_id: Optional[str] = None
+    scope: Literal["all", "owner", "crew"] = "all"
+    trip_type: Optional[int] = Field(default=None, ge=1, le=2)
+    status: Optional[int] = Field(default=None, ge=0, le=2)
+    water_type: Optional[int] = Field(default=None, ge=1, le=4)
+    water_salinity: Optional[int] = Field(default=None, ge=1, le=3)
+    lake_location_id: Optional[str] = None

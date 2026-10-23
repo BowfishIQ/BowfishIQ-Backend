@@ -6,16 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://fieldiqpro.com",
-    "https://www.fieldiqpro.com",
-    "https://staging.fieldiqpro.com",
-    "https://stagging.fieldiqpro.com",
+    "https://bowfishiq-website-nextjs.vercel.app",
 ]
 
 
 def _allowed_origins():
     configured = os.getenv("CORS_ALLOWED_ORIGINS", "")
-    extra_origins = [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
+    extra_origins = [
+        origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()
+    ]
     return list(dict.fromkeys([*ALLOWED_ORIGINS, *extra_origins]))
 
 
