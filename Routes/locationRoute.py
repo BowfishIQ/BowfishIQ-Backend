@@ -3,7 +3,7 @@ from typing import Literal, Optional
 from fastapi import APIRouter, Body, Query, Request
 
 import Services.locationService as locationService
-from Models.MapLocation import MapLocationModel, MapLocationUpdateModel
+from Models.MapLocation import MapLocationDropPinModel, MapLocationDropPinUpdateModel
 
 router = APIRouter()
 
@@ -39,7 +39,7 @@ def get_city_by_country_and_state(country_code: str, state_code: str):
 
 
 @router.post("/map-locations/", tags=["MAP LOCATION MANAGEMENT"])
-def create_map_location(map_location: MapLocationModel = Body(...)):
+def create_map_location(map_location: MapLocationDropPinModel = Body(...)):
     return locationService.create_map_location(map_location)
 
 
@@ -61,7 +61,7 @@ def get_map_location(map_location_id: str):
 @router.put("/map-location/{map_location_id}", tags=["MAP LOCATION MANAGEMENT"])
 def update_map_location(
     map_location_id: str,
-    map_location: MapLocationUpdateModel = Body(...),
+    map_location: MapLocationDropPinUpdateModel = Body(...),
 ):
     return locationService.update_map_location(map_location_id, map_location)
 

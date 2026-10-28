@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 from bson import ObjectId
@@ -70,6 +70,13 @@ def _map_location_projection():
         "zip_code": 1,
         "latitude": 1,
         "longitude": 1,
+        "pin_type": 1,
+        "water_body_id": 1,
+        "target_species": 1,
+        "water_depth_ft": 1,
+        "privacy": 1,
+        "notes": 1,
+        "is_favorite": {"$ifNull": ["$is_favorite", False]},
         "status": 1,
         "created_at": 1,
         "created_date": 1,
@@ -173,7 +180,7 @@ def update_map_location(map_location_id, map_location):
         data = map_location.model_dump(exclude_unset=True)
         if not data:
             return {"message": "No fields supplied for update", "status": "error"}
-        data["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        data["updated_at"] = datetime.now(timezone.utc)
         map_location_collection.update_one(query, {"$set": data})
         return {"message": "Map location updated successfully", "status": "success"}
     except Exception as exc:
@@ -190,7 +197,7 @@ def delete_map_location(map_location_id, deleted_by=None):
             **_active_map_location_filter(),
         }
         data = {
-            "deleted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "deleted_at": datetime.now(timezone.utc),
             "deleted_by": deleted_by,
         }
         result = map_location_collection.update_one(query, {"$set": data})

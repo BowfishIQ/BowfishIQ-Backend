@@ -6,7 +6,7 @@ from pathlib import Path
 import bcrypt
 from bson import ObjectId, json_util
 
-from Models.MapLocation import MapLocationModel
+from Models.MapLocation import MapLocationDropPinModel
 from Models.TripDetails import TripDetailsModel
 from Models.User import UserModel
 
@@ -48,12 +48,12 @@ def build_demo_data():
         ("Demo Lake - North Cove", "Demo River - South Bend"),
         ("38.2500", "38.1800"), ("-93.4000", "-93.3500"),
     ):
-        location = MapLocationModel(
+        location = MapLocationDropPinModel(
             name=name, country="United States", state="Missouri", city="Demo City",
             zip_code="00000", latitude=latitude, longitude=longitude,
-            created_by=SEED_MARKER, **_timestamps("2026-09-20"),
+            created_at="2026-09-20T12:00:00Z",
         ).model_dump()
-        locations.append({"_id": ObjectId(location_id), **location})
+        locations.append({"_id": ObjectId(location_id), **location, "created_by": SEED_MARKER})
 
     # Each trip includes the same seven members, with a rotating captain.
     roles = ["1", "2", "2", "3", "4", "5", "2"]
