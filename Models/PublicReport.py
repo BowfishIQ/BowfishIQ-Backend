@@ -24,9 +24,10 @@ class PublicReportModel(BaseModel):
     zip_code: Optional[str] = None  # Example: "65801"
 
     # GPS coordinates
-    latitude: Optional[float] = Field(ge=-90, le=90)  # Example: 37.2089 (required)
-    longitude: Optional[float] = Field(ge=-180, le=180)  # Example: -93.2923 (required)
-
+    latitude: Optional[float] = Field(default=None, ge=-90, le=90)  # Example: 37.2095
+    longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180
+    )  # Example: -93.2930
     report_date_time: Optional[str] = None
     water_clarity: Optional[str] = None  # Example: "clear", "fair", "stained", "muddy"
     water_level: Optional[str] = None  # Example: "high", "normal", "low", "flooded"
