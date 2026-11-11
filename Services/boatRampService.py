@@ -4,6 +4,7 @@ from bson import ObjectId
 
 from db import db
 from .common import paginate
+from .recordUser import user_details_stages
 
 boat_ramp_collection = db["boat_ramp"]
 
@@ -36,6 +37,7 @@ def _boat_ramp_projection():
         "user_id": 1,
         "created_at": 1,
         "updated_at": 1,
+        "updated_by": 1,
     }
 
 
@@ -53,7 +55,7 @@ def create_boat_ramp(boat_ramp):
         return {"message": str(exc), "status": "error"}
 
 
-def get_boat_ramps(page, limit, status=None, search_query=None):
+def get_boat_ramps(page, limit, status=None, search_query=None, user_id=None):
     try:
         if page < 1 or limit < 1:
             return {
@@ -62,6 +64,8 @@ def get_boat_ramps(page, limit, status=None, search_query=None):
             }
 
         match_stage = _active_boat_ramp_filter()
+        if user_id is not None:
+            match_stage["user_id"] = user_id
         if status is not None:
             match_stage["status"] = status
 
@@ -87,6 +91,7 @@ def get_boat_ramps(page, limit, status=None, search_query=None):
             [
                 {"$sort": {"created_at": -1}},
                 {"$project": _boat_ramp_projection()},
+                *user_details_stages(),
             ]
         )
         return {
@@ -97,7 +102,7 @@ def get_boat_ramps(page, limit, status=None, search_query=None):
         return {"message": str(exc), "status": "error"}
 
 
-def get_boat_ramp_by_id(boat_ramp_id):
+def get_boat_ramp_by_id(boat_ramp_id, user_id=None):
     try:
         if not ObjectId.is_valid(boat_ramp_id):
             return {"message": "Invalid boat ramp id", "status": "error"}
@@ -109,9 +114,11 @@ def get_boat_ramp_by_id(boat_ramp_id):
                         "$match": {
                             "_id": ObjectId(boat_ramp_id),
                             **_active_boat_ramp_filter(),
+                            **({"user_id": user_id} if user_id is not None else {}),
                         }
                     },
                     {"$project": _boat_ramp_projection()},
+                    *user_details_stages(),
                 ]
             )
         )
@@ -126,28 +133,37 @@ def get_boat_ramp_by_id(boat_ramp_id):
         return {"message": str(exc), "status": "error"}
 
 
-def update_boat_ramp(boat_ramp_id, boat_ramp):
+def update_boat_ramp(boat_ramp_id, boat_ramp, user_id):
     try:
+        if not isinstance(user_id, str) or not user_id.strip():
+            return {"message": "User id is required", "status": "error"}
         if not ObjectId.is_valid(boat_ramp_id):
             return {"message": "Invalid boat ramp id", "status": "error"}
 
         object_id = ObjectId(boat_ramp_id)
         query = {"_id": object_id, **_active_boat_ramp_filter()}
+        data = boat_ramp.model_dump(exclude_unset=True)
+        data.pop("user_id", None)
+        query["user_id"] = user_id
         if not boat_ramp_collection.find_one(query):
             return {"message": "Boat ramp not found", "status": "error"}
 
-        data = boat_ramp.model_dump(exclude_unset=True)
         if not data:
             return {"message": "No fields supplied for update", "status": "error"}
+        data["updated_by"] = user_id
         data["updated_at"] = datetime.now(timezone.utc)
-        boat_ramp_collection.update_one(query, {"$set": data})
+        result = boat_ramp_collection.update_one(query, {"$set": data})
+        if result.matched_count == 0:
+            return {"message": "Boat ramp not found", "status": "error"}
         return {"message": "Boat ramp updated successfully", "status": "success"}
     except Exception as exc:
         return {"message": str(exc), "status": "error"}
 
 
-def delete_boat_ramp(boat_ramp_id, deleted_by=None):
+def delete_boat_ramp(boat_ramp_id, user_id):
     try:
+        if not isinstance(user_id, str) or not user_id.strip():
+            return {"message": "User id is required", "status": "error"}
         if not ObjectId.is_valid(boat_ramp_id):
             return {"message": "Invalid boat ramp id", "status": "error"}
 
@@ -155,9 +171,10 @@ def delete_boat_ramp(boat_ramp_id, deleted_by=None):
             "_id": ObjectId(boat_ramp_id),
             **_active_boat_ramp_filter(),
         }
+        query["user_id"] = user_id
         data = {
             "deleted_at": datetime.now(timezone.utc),
-            "deleted_by": deleted_by,
+            "deleted_by": user_id,
         }
         result = boat_ramp_collection.update_one(query, {"$set": data})
         if result.matched_count == 0:

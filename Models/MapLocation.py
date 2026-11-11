@@ -25,6 +25,8 @@ PinType = Literal[
 # CREATE DROP PIN MODEL
 # =============================================
 class MapLocationDropPinModel(BaseModel):
+    user_id: Optional[str] = None
+
     name: Optional[str] = None  # Example: "North Shore Weed Bed"
 
     # Address details

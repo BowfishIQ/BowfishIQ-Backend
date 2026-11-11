@@ -38,37 +38,39 @@ def get_city_by_country_and_state(country_code: str, state_code: str):
     return locationService.get_city_by_country_and_state(country_code, state_code)
 
 
-@router.post("/map-locations/", tags=["MAP LOCATION MANAGEMENT"])
+@router.post("/map-locations/", tags=["SAVE SPOT MANAGEMENT"])
 def create_map_location(map_location: MapLocationDropPinModel = Body(...)):
     return locationService.create_map_location(map_location)
 
 
-@router.get("/map-locations/{page}", tags=["MAP LOCATION MANAGEMENT"])
+@router.get("/map-locations/{page}", tags=["SAVE SPOT MANAGEMENT"])
 def get_map_locations(
     page: int,
     limit: int = 10,
     status: Optional[int] = None,
     search_query: Optional[str] = None,
+    user_id: Optional[str] = None,
 ):
-    return locationService.get_map_locations(page, limit, status, search_query)
+    return locationService.get_map_locations(page, limit, status, search_query, user_id)
 
 
-@router.get("/map-location/{map_location_id}", tags=["MAP LOCATION MANAGEMENT"])
-def get_map_location(map_location_id: str):
-    return locationService.get_map_location_by_id(map_location_id)
+@router.get("/map-location/{map_location_id}", tags=["SAVE SPOT MANAGEMENT"])
+def get_map_location(map_location_id: str, user_id: Optional[str] = None):
+    return locationService.get_map_location_by_id(map_location_id, user_id)
 
 
-@router.put("/map-location/{map_location_id}", tags=["MAP LOCATION MANAGEMENT"])
+@router.put("/map-location/{map_location_id}", tags=["SAVE SPOT MANAGEMENT"])
 def update_map_location(
     map_location_id: str,
     map_location: MapLocationDropPinUpdateModel = Body(...),
+    user_id: str = Query(..., min_length=1, pattern=r"\S"),
 ):
-    return locationService.update_map_location(map_location_id, map_location)
+    return locationService.update_map_location(map_location_id, map_location, user_id)
 
 
-@router.delete("/map-location/{map_location_id}", tags=["MAP LOCATION MANAGEMENT"])
+@router.delete("/map-location/{map_location_id}", tags=["SAVE SPOT MANAGEMENT"])
 def delete_map_location(
     map_location_id: str,
-    deleted_by: Optional[str] = None,
+    user_id: str = Query(..., min_length=1, pattern=r"\S"),
 ):
-    return locationService.delete_map_location(map_location_id, deleted_by)
+    return locationService.delete_map_location(map_location_id, user_id)

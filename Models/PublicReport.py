@@ -13,6 +13,8 @@ import json
 # CREATE DROP PIN MODEL
 # =============================================
 class PublicReportModel(BaseModel):
+    user_id: Optional[str] = None
+
     name: Optional[str] = None  # Example: "North Shore Weed Bed"
 
     # Address details

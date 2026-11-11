@@ -5,6 +5,7 @@ from bson import ObjectId
 
 from db import db
 from .common import paginate
+from .recordUser import user_details_stages
 
 collection = db["location"]
 map_location_collection = db["map_location"]
@@ -78,6 +79,7 @@ def _map_location_projection():
         "notes": 1,
         "is_favorite": {"$ifNull": ["$is_favorite", False]},
         "status": 1,
+        "user_id": 1,
         "created_at": 1,
         "created_date": 1,
         "created_time": 1,
@@ -101,7 +103,7 @@ def create_map_location(map_location):
         return {"message": str(exc), "status": "error"}
 
 
-def get_map_locations(page, limit, status=None, search_query=None):
+def get_map_locations(page, limit, status=None, search_query=None, user_id=None):
     try:
         if page < 1 or limit < 1:
             return {
@@ -110,6 +112,8 @@ def get_map_locations(page, limit, status=None, search_query=None):
             }
 
         match_stage = _active_map_location_filter()
+        if user_id is not None:
+            match_stage["user_id"] = user_id
         if status is not None:
             match_stage["status"] = status
 
@@ -128,6 +132,7 @@ def get_map_locations(page, limit, status=None, search_query=None):
             [
                 {"$sort": {"created_at": -1}},
                 {"$project": _map_location_projection()},
+                *user_details_stages(),
             ]
         )
         return {
@@ -138,7 +143,7 @@ def get_map_locations(page, limit, status=None, search_query=None):
         return {"message": str(exc), "status": "error"}
 
 
-def get_map_location_by_id(map_location_id):
+def get_map_location_by_id(map_location_id, user_id=None):
     try:
         if not ObjectId.is_valid(map_location_id):
             return {"message": "Invalid map location id", "status": "error"}
@@ -150,9 +155,11 @@ def get_map_location_by_id(map_location_id):
                         "$match": {
                             "_id": ObjectId(map_location_id),
                             **_active_map_location_filter(),
+                            **({"user_id": user_id} if user_id is not None else {}),
                         }
                     },
                     {"$project": _map_location_projection()},
+                    *user_details_stages(),
                 ]
             )
         )
@@ -167,28 +174,37 @@ def get_map_location_by_id(map_location_id):
         return {"message": str(exc), "status": "error"}
 
 
-def update_map_location(map_location_id, map_location):
+def update_map_location(map_location_id, map_location, user_id):
     try:
+        if not isinstance(user_id, str) or not user_id.strip():
+            return {"message": "User id is required", "status": "error"}
         if not ObjectId.is_valid(map_location_id):
             return {"message": "Invalid map location id", "status": "error"}
 
         object_id = ObjectId(map_location_id)
         query = {"_id": object_id, **_active_map_location_filter()}
+        data = map_location.model_dump(exclude_unset=True)
+        data.pop("user_id", None)
+        query["user_id"] = user_id
         if not map_location_collection.find_one(query):
             return {"message": "Map location not found", "status": "error"}
 
-        data = map_location.model_dump(exclude_unset=True)
         if not data:
             return {"message": "No fields supplied for update", "status": "error"}
+        data["updated_by"] = user_id
         data["updated_at"] = datetime.now(timezone.utc)
-        map_location_collection.update_one(query, {"$set": data})
+        result = map_location_collection.update_one(query, {"$set": data})
+        if result.matched_count == 0:
+            return {"message": "Map location not found", "status": "error"}
         return {"message": "Map location updated successfully", "status": "success"}
     except Exception as exc:
         return {"message": str(exc), "status": "error"}
 
 
-def delete_map_location(map_location_id, deleted_by=None):
+def delete_map_location(map_location_id, user_id):
     try:
+        if not isinstance(user_id, str) or not user_id.strip():
+            return {"message": "User id is required", "status": "error"}
         if not ObjectId.is_valid(map_location_id):
             return {"message": "Invalid map location id", "status": "error"}
 
@@ -196,9 +212,10 @@ def delete_map_location(map_location_id, deleted_by=None):
             "_id": ObjectId(map_location_id),
             **_active_map_location_filter(),
         }
+        query["user_id"] = user_id
         data = {
             "deleted_at": datetime.now(timezone.utc),
-            "deleted_by": deleted_by,
+            "deleted_by": user_id,
         }
         result = map_location_collection.update_one(query, {"$set": data})
         if result.matched_count == 0:

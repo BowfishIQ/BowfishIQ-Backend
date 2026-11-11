@@ -67,18 +67,19 @@ class BoatRampApplicationTests(unittest.TestCase):
 
     def test_update_preserves_omitted_fields_and_accepts_false_zero_and_null(self):
         payload = {"lake_river": "New Lake", "fee": 0, "night_access": False, "notes": None}
-        self.assertEqual(self.client.put(self.path, json=payload).json()["status"], "success")
+        self.assertEqual(self.client.put(self.path, params={"user_id": "user-1"}, json=payload).json()["status"], "success")
         changes = self.collection.update_one.call_args.args[1]["$set"]
         self.assertEqual(changes.pop("updated_at").tzinfo, timezone.utc)
+        self.assertEqual(changes.pop("updated_by"), "user-1")
         self.assertEqual(changes, payload)
 
     def test_empty_update_does_not_write(self):
-        self.assertEqual(self.client.put(self.path, json={}).json()["status"], "error")
+        self.assertEqual(self.client.put(self.path, params={"user_id": "user-1"}, json={}).json()["status"], "error")
         self.collection.update_one.assert_not_called()
 
     def test_delete_is_soft_and_records_actor_and_utc_time(self):
         self.collection.update_one.return_value.matched_count = 1
-        result = self.client.delete(self.path, params={"deleted_by": "user-1"}).json()
+        result = self.client.delete(self.path, params={"user_id": "user-1"}).json()
         self.assertEqual(result["status"], "success")
         query, update = self.collection.update_one.call_args.args
         self.assertEqual(query["deleted_at"], {"$in": ["", None]})
@@ -88,7 +89,7 @@ class BoatRampApplicationTests(unittest.TestCase):
         self.collection.delete_one.assert_not_called()
 
     def test_invalid_ids_do_not_access_database(self):
-        for method, kwargs in (("get", {}), ("put", {"json": {"name": "Ramp"}}), ("delete", {})):
+        for method, kwargs in (("get", {}), ("put", {"json": {"name": "Ramp"}, "params": {"user_id": "user-1"}}), ("delete", {"params": {"user_id": "user-1"}})):
             self.assertEqual(getattr(self.client, method)("/boat-ramp/invalid", **kwargs).json()["status"], "error")
         self.assertEqual(self.collection.mock_calls, [])
 
@@ -97,9 +98,9 @@ class BoatRampApplicationTests(unittest.TestCase):
         self.collection.find_one.return_value = None
         self.collection.update_one.return_value.matched_count = 0
         self.assertEqual(self.client.get(self.path).json()["status"], "error")
-        self.assertEqual(self.client.put(self.path, json={"name": "Ramp"}).json()["status"], "error")
+        self.assertEqual(self.client.put(self.path, params={"user_id": "user-1"}, json={"name": "Ramp"}).json()["status"], "error")
         self.collection.update_one.assert_not_called()
-        self.assertEqual(self.client.delete(self.path).json()["status"], "error")
+        self.assertEqual(self.client.delete(self.path, params={"user_id": "user-1"}).json()["status"], "error")
 
     def test_invalid_pagination_does_not_access_database(self):
         for path in ("/boat-ramps/0", "/boat-ramps/1?limit=0"):
@@ -109,7 +110,7 @@ class BoatRampApplicationTests(unittest.TestCase):
     def test_invalid_coordinates_are_rejected_before_writes(self):
         for payload in ({}, {"latitude": 91, "longitude": 0}, {"latitude": 0, "longitude": -181}):
             self.assertEqual(self.client.post("/boat-ramps/", json=payload).status_code, 422)
-        self.assertEqual(self.client.put(self.path, json={"latitude": 91}).status_code, 422)
+        self.assertEqual(self.client.put(self.path, params={"user_id": "user-1"}, json={"latitude": 91}).status_code, 422)
         self.assertEqual(self.collection.mock_calls, [])
 
 

@@ -92,7 +92,7 @@ class MapLocationApplicationTests(unittest.TestCase):
                 with self.subTest(invalid=invalid):
                     payload = {"latitude": 37.2, "longitude": -93.2, **invalid}
                     self.assertEqual(client.post("/map-locations/", json=payload).status_code, 422)
-                    self.assertEqual(client.put(f"/map-location/{ObjectId()}", json=invalid).status_code, 422)
+                    self.assertEqual(client.put(f"/map-location/{ObjectId()}", params={"user_id": "user-1"}, json=invalid).status_code, 422)
             collection.insert_one.assert_not_called()
             collection.update_one.assert_not_called()
 
@@ -100,11 +100,12 @@ class MapLocationApplicationTests(unittest.TestCase):
         payload = {"pin_type": "rock_pile", "target_species": [], "water_depth_ft": None, "notes": None, "privacy": "private"}
         mock_collection = MagicMock()
         with patch.object(locationService, "map_location_collection", mock_collection):
-            response = TestClient(main.app).put(f"/map-location/{ObjectId()}", json=payload)
+            response = TestClient(main.app).put(f"/map-location/{ObjectId()}", params={"user_id": "user-1"}, json=payload)
 
         self.assertEqual(response.json()["status"], "success")
         changes = mock_collection.update_one.call_args.args[1]["$set"]
         updated_at = changes.pop("updated_at")
+        self.assertEqual(changes.pop("updated_by"), "user-1")
         self.assertEqual(changes, payload)
         self.assertEqual(updated_at.tzinfo, timezone.utc)
 
@@ -114,12 +115,12 @@ class MapLocationApplicationTests(unittest.TestCase):
             for value in (True, False):
                 with self.subTest(is_favorite=value):
                     response = client.put(
-                        f"/map-location/{ObjectId()}", json={"is_favorite": value}
+                        f"/map-location/{ObjectId()}", params={"user_id": "user-1"}, json={"is_favorite": value}
                     )
                     self.assertEqual(response.json()["status"], "success")
                     changes = collection.update_one.call_args.args[1]["$set"]
                     self.assertIs(changes["is_favorite"], value)
-                    self.assertEqual(set(changes), {"is_favorite", "updated_at"})
+                    self.assertEqual(set(changes), {"is_favorite", "updated_at", "updated_by"})
 
     def test_list_and_detail_reads_include_drop_pin_fields(self):
         fields = {"pin_type", "water_body_id", "target_species", "water_depth_ft", "notes", "is_favorite", "privacy"}

@@ -4,6 +4,7 @@ from bson import ObjectId
 
 from db import db
 from .common import paginate
+from .recordUser import user_details_stages
 
 public_report_collection = db["public_report"]
 
@@ -43,6 +44,7 @@ def _public_report_projection(base_url):
         "user_id": 1,
         "created_at": 1,
         "updated_at": 1,
+        "updated_by": 1,
     }
 
 
@@ -60,7 +62,7 @@ def create_public_report(public_report):
         return {"message": str(exc), "status": "error"}
 
 
-def get_public_reports(request, page, limit, status=None, search_query=None):
+def get_public_reports(request, page, limit, status=None, search_query=None, user_id=None):
     try:
         base_url = str(request.base_url).rstrip("/")
         if page < 1 or limit < 1:
@@ -70,6 +72,8 @@ def get_public_reports(request, page, limit, status=None, search_query=None):
             }
 
         match_stage = _active_public_report_filter()
+        if user_id is not None:
+            match_stage["user_id"] = user_id
         if status is not None:
             match_stage["status"] = status
 
@@ -95,6 +99,7 @@ def get_public_reports(request, page, limit, status=None, search_query=None):
             [
                 {"$sort": {"created_at": -1}},
                 {"$project": _public_report_projection(base_url)},
+                *user_details_stages(),
             ]
         )
         return {
@@ -105,7 +110,7 @@ def get_public_reports(request, page, limit, status=None, search_query=None):
         return {"message": str(exc), "status": "error"}
 
 
-def get_public_report_by_id(request, public_report_id):
+def get_public_report_by_id(request, public_report_id, user_id=None):
     try:
         base_url = str(request.base_url).rstrip("/")
         if not ObjectId.is_valid(public_report_id):
@@ -118,9 +123,11 @@ def get_public_report_by_id(request, public_report_id):
                         "$match": {
                             "_id": ObjectId(public_report_id),
                             **_active_public_report_filter(),
+                            **({"user_id": user_id} if user_id is not None else {}),
                         }
                     },
                     {"$project": _public_report_projection(base_url)},
+                    *user_details_stages(),
                 ]
             )
         )
@@ -135,28 +142,37 @@ def get_public_report_by_id(request, public_report_id):
         return {"message": str(exc), "status": "error"}
 
 
-def update_public_report(public_report_id, public_report):
+def update_public_report(public_report_id, public_report, user_id):
     try:
+        if not isinstance(user_id, str) or not user_id.strip():
+            return {"message": "User id is required", "status": "error"}
         if not ObjectId.is_valid(public_report_id):
             return {"message": "Invalid public report id", "status": "error"}
 
         object_id = ObjectId(public_report_id)
         query = {"_id": object_id, **_active_public_report_filter()}
+        data = public_report.model_dump(exclude_unset=True)
+        data.pop("user_id", None)
+        query["user_id"] = user_id
         if not public_report_collection.find_one(query):
             return {"message": "Public report not found", "status": "error"}
 
-        data = public_report.model_dump(exclude_unset=True)
         if not data:
             return {"message": "No fields supplied for update", "status": "error"}
+        data["updated_by"] = user_id
         data["updated_at"] = datetime.now(timezone.utc)
-        public_report_collection.update_one(query, {"$set": data})
+        result = public_report_collection.update_one(query, {"$set": data})
+        if result.matched_count == 0:
+            return {"message": "Public report not found", "status": "error"}
         return {"message": "Public report updated successfully", "status": "success"}
     except Exception as exc:
         return {"message": str(exc), "status": "error"}
 
 
-def delete_public_report(public_report_id, deleted_by=None):
+def delete_public_report(public_report_id, user_id):
     try:
+        if not isinstance(user_id, str) or not user_id.strip():
+            return {"message": "User id is required", "status": "error"}
         if not ObjectId.is_valid(public_report_id):
             return {"message": "Invalid public report id", "status": "error"}
 
@@ -164,9 +180,10 @@ def delete_public_report(public_report_id, deleted_by=None):
             "_id": ObjectId(public_report_id),
             **_active_public_report_filter(),
         }
+        query["user_id"] = user_id
         data = {
             "deleted_at": datetime.now(timezone.utc),
-            "deleted_by": deleted_by,
+            "deleted_by": user_id,
         }
         result = public_report_collection.update_one(query, {"$set": data})
         if result.matched_count == 0:

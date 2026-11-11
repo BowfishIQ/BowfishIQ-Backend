@@ -24,8 +24,9 @@ class BoatRampModel(BaseModel):
     zip_code: Optional[str] = None  # Example: "65801"
 
     # GPS coordinates
-    latitude: float = Field(ge=-90, le=90)  # Example: 37.2089 (required)
-    longitude: float = Field(ge=-180, le=180)  # Example: -93.2923 (required)
+    latitude: Optional[float] = Field(ge=-90, le=90)  # Example: 37.2089 (required)
+    longitude: Optional[float] = Field(ge=-180, le=180)  # Example: -93.2923 (required)
+    
 
     ramp_type: Optional[str] = None  # Example: "private", "marina", "public", "unknown"
     parking_type: Optional[str] = None  # Example: "ample", "limited", "none", "unknown"
@@ -90,7 +91,6 @@ class BoatRampUpdateModel(BaseModel):
 
     post_anonymous: Optional[bool] = None  # Example: True, False
 
-    user_id: Optional[str] = None
 
     # Convert JSON string to dictionary if needed
     @model_validator(mode="before")

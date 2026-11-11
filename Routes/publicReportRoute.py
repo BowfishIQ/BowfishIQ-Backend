@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Body, Request, UploadFile
+from fastapi import APIRouter, Body, Query, Request, UploadFile
 from openai import images
 
 from Models.PublicReport import PublicReportModel, PublicReportUpdateModel
@@ -28,27 +28,32 @@ def get_public_reports(
     limit: int = 10,
     status: Optional[int] = None,
     search_query: Optional[str] = None,
+    user_id: Optional[str] = None,
 ):
-    return publicReportService.get_public_reports(request, page, limit, status, search_query)
+    return publicReportService.get_public_reports(request, page, limit, status, search_query, user_id)
 
 
 @router.get("/public-report/{public_report_id}")
-def get_public_report(request: Request, public_report_id: str):
-    return publicReportService.get_public_report_by_id(request, public_report_id)
+def get_public_report(request: Request, public_report_id: str, user_id: Optional[str] = None):
+    return publicReportService.get_public_report_by_id(request, public_report_id, user_id)
 
 
 @router.put("/public-report/{public_report_id}")
 async def update_public_report(
     public_report_id: str,
     public_report: PublicReportUpdateModel = Body(...),
+    user_id: str = Query(..., min_length=1, pattern=r"\S"),
     images: Optional[list[UploadFile]] = None,
 ):
     if images is not None and images != "":
         file = await save_multiple_files(images, "uploads/public_reports")
         public_report.images = file
-    return publicReportService.update_public_report(public_report_id, public_report)
+    return publicReportService.update_public_report(public_report_id, public_report, user_id)
 
 
 @router.delete("/public-report/{public_report_id}")
-def delete_public_report(public_report_id: str, deleted_by: Optional[str] = None):
-    return publicReportService.delete_public_report(public_report_id, deleted_by)
+def delete_public_report(
+    public_report_id: str,
+    user_id: str = Query(..., min_length=1, pattern=r"\S"),
+):
+    return publicReportService.delete_public_report(public_report_id, user_id)
