@@ -37,7 +37,7 @@ class DemoSeedTests(unittest.TestCase):
             self.assertEqual({crew["user_id"] for crew in trip["crew_details"]}, set(users))
             for crew, team in zip(trip["crew_details"], trip["team_details"]):
                 self.assertEqual(users[crew["user_id"]]["name"], team["name"])
-                self.assertEqual(crew["posuser_role"], team["role"])
+                self.assertEqual(crew["user_role"], team["role"])
 
     def test_export_preserves_object_ids_and_expected_summary(self):
         with TemporaryDirectory() as directory:
@@ -52,7 +52,7 @@ class DemoSeedTests(unittest.TestCase):
         self.assertEqual(sum(fish["count"] for trip in trips for fish in trip["fish_shot_details"]), expected["total_fish_caught"])
         self.assertEqual(sum(team["shot_count"] for trip in trips for team in trip["team_details"]), expected["total_team_shots"])
         self.assertEqual(sum(trip["fish_see_not_shot_count"] for trip in trips), expected["total_fish_seen_not_shot"])
-        roles = Counter(crew["posuser_role"] for trip in trips for crew in trip["crew_details"] if crew["user_id"] == USER_IDS[0])
+        roles = Counter(role for trip in trips for crew in trip["crew_details"] if crew["user_id"] == USER_IDS[0] for role in crew["user_role"])
         self.assertEqual(roles, {"1": 2, "2": 1, "4": 1, "5": 1})
 
     def test_insert_is_repeatable_and_does_not_replace_existing_records(self):

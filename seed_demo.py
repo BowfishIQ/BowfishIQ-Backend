@@ -79,9 +79,9 @@ def build_demo_data():
         } for name, count, factor in zip(("Carp", "Buffalo", "Gar"), catches, (1, 0.9, 0.8)) if count]
         trip = TripDetailsModel(
             user_id=USER_IDS[captain],
-            crew_details=[{"user_id": user_id, "posuser_role": role, "status": 1}
-                          for user_id, role in zip(USER_IDS, trip_roles)],
-            team_details=[{"name": user["name"], "role": role,
+            crew_details=[{"user_id": user_id, "user_name": user["name"], "user_role": [role], "status": 1}
+                          for user_id, user, role in zip(USER_IDS, users, trip_roles)],
+            team_details=[{"name": user["name"], "role": [role],
                            "shot_count": int(shots.get(member, 0)), "status": 1}
                           for member, (user, role) in enumerate(zip(users, trip_roles))],
             trip_type=trip_type, water_type=water_type, water_salinity=1,
@@ -93,7 +93,7 @@ def build_demo_data():
             water_movement=1 if water_type == 1 else 2, wind=(index % 3) + 1,
             wind_speed=3.0 + index * 2, wind_direction=(index % 8) + 1,
             water_level=2, water_base=1, water_depth=4.0 + index,
-            fish_location=str((index % 5) + 1),
+            fish_location=[str((index % 5) + 1)],
             trip_outcome=f"Landed {catch_total} fish" if trip_type == 1 else "Scouted access and fish activity; no fish shot",
             trip_lessons="Shallow sheltered water had the best visibility.",
             trip_notes=f"{SEED_MARKER} | Team: {TEAM_NAME} | Demo trip {index + 1}",

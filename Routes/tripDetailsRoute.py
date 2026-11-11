@@ -1,10 +1,11 @@
 from typing import Optional
 
-from fastapi import APIRouter, Body, Depends, Path, Query
+from fastapi import APIRouter, Body, Depends, Path, Query, UploadFile
 
 from Models.TripDetails import TripDetailsModel, TripDetailsUpdateModel, UserTripFilters
 from Services import tripDetailsService
 from Services import userTripService
+from Services.common import save_multiple_files
 
 router = APIRouter(tags=["TRIP DETAILS MANAGEMENT"])
 
@@ -18,7 +19,9 @@ def get_user_trip_details(
     sort_order: str = Query(default="desc", pattern="^(asc|desc)$"),
 ):
     """Paginated owned/crew trips, sorted by trip date. Omit dates for all days."""
-    return userTripService.get_user_trip_details(user_id, filters, page, limit, sort_order)
+    return userTripService.get_user_trip_details(
+        user_id, filters, page, limit, sort_order
+    )
 
 
 @router.get("/users/{user_id}/trip-details/summary")
@@ -31,7 +34,13 @@ def get_user_trip_summary(
 
 
 @router.post("/trip-details/")
-def create_trip_details(trip_details: TripDetailsModel = Body(...)):
+async def create_trip_details(
+    trip_details: TripDetailsModel = Body(...),
+    images: Optional[list[UploadFile]] = None,
+):
+    if images:
+        uploaded = await save_multiple_files(images, "uploads/trip_details")
+        trip_details.images = (trip_details.images or []) + uploaded
     return tripDetailsService.create_trip_details(trip_details)
 
 
@@ -54,10 +63,23 @@ def get_trip_details_by_id(trip_details_id: str):
 
 
 @router.put("/trip-detail/{trip_details_id}")
-def update_trip_details(
+async def update_trip_details(
     trip_details_id: str,
     trip_details: TripDetailsUpdateModel = Body(...),
+    images: Optional[list[UploadFile]] = None,
 ):
+    if images:
+        # Verify the trip before writing files. The service also checks the write result.
+        existing = tripDetailsService.get_trip_details_by_id(trip_details_id)
+        if existing["status"] != "success":
+            return existing
+        uploaded = await save_multiple_files(images, "uploads/trip_details")
+        retained = (
+            trip_details.images
+            if "images" in trip_details.model_fields_set
+            else existing["data"].get("images")
+        )
+        trip_details.images = (retained or []) + uploaded
     return tripDetailsService.update_trip_details(trip_details_id, trip_details)
 
 

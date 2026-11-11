@@ -155,7 +155,11 @@ class UserTripReportingTests(unittest.TestCase):
         facets = pipeline[-1]["$facet"]
         self.assertEqual(facets["totals"][0]["$group"]["total_trips"], {"$sum": 1})
         self.assertNotIn("$skip", str(facets))
-        self.assertIn("$group", facets["user_role_counts"][2])
+        self.assertEqual(facets["user_role_counts"][-2]["$group"]["_id"], {"trip": "$_id.trip", "role": "$_id.role"})
+        self.assertIn("user_role", str(facets["user_role_counts"]))
+        self.assertIn("posuser_role", str(facets["user_role_counts"]))
+        self.assertIn("$isArray", str(facets["team_role_counts"]))
+        self.assertEqual(facets["fish_location"][1]["$unwind"]["path"], "$fish_location")
 
     def test_summary_returns_totals_roles_fish_and_breakdowns(self):
         self.collection.aggregate.return_value = [{

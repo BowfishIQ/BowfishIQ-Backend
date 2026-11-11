@@ -103,7 +103,7 @@ is treated as active. Empty results return zeros and empty breakdowns.
 `team_details` has no `user_id`, and `crew_details` has no catch/shot count.
 Consequently `total_fish_caught` and `total_team_shots` are trip/team totals,
 not personal catches. Personal catch counts require a user ID on catch or team
-records. `user_role_counts` uses only `crew_details.user_id` and `posuser_role`.
+records. `user_role_counts` uses only `crew_details.user_id` and `user_role` (a list; legacy `posuser_role` is still supported).
 
 ## Shared filters
 

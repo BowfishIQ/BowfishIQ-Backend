@@ -181,12 +181,27 @@ def _role(value):
     }}
 
 
-def _role_facet(array, role_field, unique_trips=False):
-    stages = [{"$unwind": f"${array}"}, {"$set": {"_role": _role(f"${array}.{role_field}")}}]
+def _as_array(value):
+    """Support current multi-select values and older scalar records."""
+    return {"$cond": [{"$isArray": value}, value, [value]]}
+
+
+def _role_facet(array, role_field, unique_trips=False, legacy_field=None):
+    value = f"${array}.{role_field}"
+    if legacy_field:
+        value = {"$ifNull": [value, f"${array}.{legacy_field}"]}
+    stages = [
+        {"$unwind": {"path": f"${array}", "includeArrayIndex": "_role_entry_index"}},
+        {"$set": {"_roles": _as_array(value)}},
+        {"$unwind": {"path": "$_roles", "preserveNullAndEmptyArrays": True}},
+        {"$set": {"_role": _role("$_roles")}},
+        # Normalize and deduplicate roles on each entry before counting.
+        {"$group": {"_id": {"trip": "$_id", "entry": "$_role_entry_index", "role": "$_role"}}},
+    ]
     if unique_trips:
-        stages.append({"$group": {"_id": {"trip": "$_id", "role": "$_role"}}})
+        stages.append({"$group": {"_id": {"trip": "$_id.trip", "role": "$_id.role"}}})
     stages.append({"$group": {
-        "_id": "$_id.role" if unique_trips else "$_role", "count": {"$sum": 1},
+        "_id": "$_id.role", "count": {"$sum": 1},
     }})
     return stages
 
@@ -216,7 +231,7 @@ def get_user_trip_summary(user_id, filters: UserTripFilters):
     }
     facets = {
         "totals": [{"$group": group}],
-        "user_role_counts": _role_facet("_user_crew", "posuser_role", unique_trips=True),
+        "user_role_counts": _role_facet("_user_crew", "user_role", unique_trips=True, legacy_field="posuser_role"),
         "team_role_counts": _role_facet("_team", "role"),
         "fish_counts": [
             {"$unwind": "$_fish"},
@@ -228,7 +243,13 @@ def get_user_trip_summary(user_id, filters: UserTripFilters):
         ],
     }
     for field in BREAKDOWN_FIELDS:
-        facets[field] = [
+        stages = []
+        if field == "fish_location":
+            stages = [
+                {"$set": {"fish_location": {"$setUnion": [_as_array("$fish_location"), []]}}},
+                {"$unwind": {"path": "$fish_location", "preserveNullAndEmptyArrays": True}},
+            ]
+        facets[field] = stages + [
             {"$group": {"_id": {"$ifNull": [f"${field}", None]}, "count": {"$sum": 1}}},
             {"$sort": {"_id": 1}},
         ]

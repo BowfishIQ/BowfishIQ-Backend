@@ -6,7 +6,8 @@ import json
 
 class CrewDetailsModel(BaseModel):
     user_id: Optional[str] = None
-    posuser_role: Optional[str] = None
+    user_name: Optional[str] = None
+    user_role: Optional[list[str]] = None  # 1=Captain, 2=shooter, 3=Spotter, 4=Guest, 5=Other
     status: Optional[int] = Field(default=1)  # 0- deactivate, 1- activate, 2- Blocked
 
     @model_validator(mode="before")
@@ -35,7 +36,7 @@ class FishShotDetailsModel(BaseModel):
 
 class TeamDetailsModel(BaseModel):
     name: Optional[str] = None
-    role: Optional[str] = None  # 1=Captain, 2=shooter, 3=Spotter, 4=Guest, 5=Other
+    role: Optional[list[str]] = None  # 1=Captain, 2=shooter, 3=Spotter, 4=Guest, 5=Other
     shot_count: Optional[int] = None
     status: Optional[int] = Field(default=1)  # 0- deactivate, 1- activate, 2- Blocked
 
@@ -91,7 +92,7 @@ class TripDetailsModel(BaseModel):
     water_base: Optional[int] = Field(default=None)  # 1=below, 2=above
     water_depth: Optional[float] = Field(default=None)  # in feet
 
-    fish_location: Optional[str] = (
+    fish_location: Optional[list[str]] = (
         None  #  1 = Shoreline, 2 = Mud flats, 3 = Grass, 4 = Bushes, 5 = Riprap, 6 = Creek channel, 7 = Main lake, 8 = Suspended, 9 = Flooded timber
     )
 
