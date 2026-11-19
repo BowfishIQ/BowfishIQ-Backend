@@ -6,6 +6,7 @@ from config import APP_NAME
 from cors_config import setup_cors
 
 from Routes import boatRampRoute, lakesRoute, publicReportRoute, fishCountRoute, locationRoute, tripDetailsRoute, userRoute
+from Routes import coastalRoute
 
 app = FastAPI(title=APP_NAME)
 os.makedirs(getcwd() + "/uploads/", exist_ok=True)
@@ -25,6 +26,7 @@ app.include_router(userRoute.router)
 app.include_router(locationRoute.router)
 app.include_router(boatRampRoute.router)
 app.include_router(lakesRoute.router)
+app.include_router(coastalRoute.router)
 app.include_router(publicReportRoute.router)
 
 app.include_router(fishCountRoute.router)
