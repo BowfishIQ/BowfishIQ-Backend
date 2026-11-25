@@ -18,3 +18,5 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 OPENAI_FISH_MODEL = os.getenv("OPENAI_FISH_MODEL", "gpt-4.1").strip() or "gpt-4.1"
+OPENAI_TRIP_ANALYSIS_MODEL = os.getenv("OPENAI_TRIP_ANALYSIS_MODEL", "gpt-4.1").strip() or "gpt-4.1"
+NWS_USER_AGENT = os.getenv("NWS_USER_AGENT", "BowfishIQ coastal-conditions").strip() or "BowfishIQ coastal-conditions"
