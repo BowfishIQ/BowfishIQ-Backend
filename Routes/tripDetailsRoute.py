@@ -22,10 +22,13 @@ def capture_trip_coastal_conditions(
 ):
     """Capture current coastal conditions in the selected START or END slot.
 
-    Uses the first saved map location with valid coordinates on a coastal trip.
+    Uses saved map coordinates, then resolves coastal area names, UUIDs or record IDs.
+    If a saved coastal region has no coordinates, uses a clearly marked NOAA regional
+    reference station in that state; these are regional conditions, not boat coordinates.
     Each action replaces only its selected snapshot in a separate collection.
     Capture times are current UTC times, not historical trip date/time backfills.
-    Values are station observations within 50 km, not measurements at the boat.
+    Values are station observations within 50 km of the resolved coordinate/reference
+    station, not measurements at the boat. The response identifies the coordinate basis.
     Next high/low tides are predictions in feet relative to MLLW. Stale/flagged
     observations and unsupported wave heights remain null, with reasons.
     """

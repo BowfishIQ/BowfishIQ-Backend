@@ -8,9 +8,11 @@ https://www.weather.gov/documentation/services-web-api
 """
 
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from math import asin, cos, isfinite, radians, sin, sqrt
+import re
 from urllib.parse import urlparse
 
 import requests
@@ -20,7 +22,7 @@ from pymongo.errors import PyMongoError
 
 from config import NWS_USER_AGENT
 from db import db
-from Services import tripDetailsService, userTripService
+from Services import coastalService, tripDetailsService, userTripService
 
 
 collection = db["trip_coastal_conditions"]
@@ -29,6 +31,14 @@ NOAA_STATIONS = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/station
 NWS = "https://api.weather.gov"
 MAX_STATION_KM = 50
 UTC = timezone.utc
+STATE_CODES = dict(zip(
+    ("Alabama", "Alaska", "California", "Connecticut", "Delaware", "Florida", "Georgia",
+     "Hawaii", "Louisiana", "Maine", "Maryland", "Massachusetts", "Mississippi", "New Hampshire",
+     "New Jersey", "New York", "North Carolina", "Oregon", "Rhode Island", "South Carolina",
+     "Texas", "Virginia", "Washington", "Puerto Rico", "U.S. Virgin Islands", "Guam", "American Samoa"),
+    ("AL", "AK", "CA", "CT", "DE", "FL", "GA", "HI", "LA", "ME", "MD", "MA", "MS", "NH",
+     "NJ", "NY", "NC", "OR", "RI", "SC", "TX", "VA", "WA", "PR", "VI", "GU", "AS"),
+))
 
 
 class ProviderUnavailable(Exception):
@@ -110,7 +120,8 @@ def _nearest(kind, location, now):
         raise ProviderUnavailable("No suitable station within 50 km")
     distance, station_id, station = min(candidates, key=lambda row: (row[0], row[1]))
     return {"id": station_id, "name": station.get("name"), "latitude": float(station["lat"]),
-            "longitude": float(station["lng"]), "distance_km": round(distance, 3)}
+            "longitude": float(station["lng"]), "distance_km": round(distance, 3),
+            "distance_origin": location.get("coordinate_basis", "Saved trip location coordinates")}
 
 
 def _noaa(product, kind, location, now):
@@ -296,15 +307,106 @@ def _trip(trip_id):
     return rows[0]
 
 
+def _coordinates(record):
+    lat, lon = _number(record.get("latitude")), _number(record.get("longitude"))
+    if lat is not None and lon is not None and -90 <= lat <= 90 and -180 <= lon <= 180:
+        return {"latitude": lat, "longitude": lon}
+    return None
+
+
+def _same_name(first, second):
+    return isinstance(first, str) and isinstance(second, str) and first.strip().casefold() == second.strip().casefold()
+
+
+def _coastal_regions(references):
+    """Resolve legacy area names, area UUIDs and coastal record IDs without writes."""
+    if not references:
+        return []
+    ids = [ObjectId(ref) for ref in references if ObjectId.is_valid(ref)]
+    names = [{"$regex": f"^{re.escape(ref)}$", "$options": "i"} for ref in references]
+    conditions = [{"area.id": {"$in": references}}]
+    if ids:
+        conditions.append({"_id": {"$in": ids}})
+    conditions.extend({field: pattern} for pattern in names for field in ("area.name", "state"))
+    rows = list(coastalService.coastal_collection.find({
+        **coastalService._active_filter(), "status": {"$in": [1, None]}, "$or": conditions,
+    }, {"state": 1, "area": 1, "latitude": 1, "longitude": 1}))
+    regions = []
+    for reference in references:
+        matches = []
+        for row in rows:
+            areas = [area for area in row.get("area") or [] if
+                     str(area.get("id")) == reference or _same_name(area.get("name"), reference)]
+            if areas:
+                matches.extend((row, area) for area in areas)
+            elif str(row["_id"]) == reference or _same_name(row.get("state"), reference):
+                matches.append((row, {}))
+        # Do not silently pick between identically named areas in different states.
+        if len(matches) == 1:
+            row, area = matches[0]
+            regions.append({
+                "location_id": str(area.get("id") or row["_id"]), "coastal_id": str(row["_id"]),
+                "name": area.get("name") or row.get("state"), "state": row.get("state"),
+                "requested_reference": reference, "water_body": area.get("water_body"),
+                "coordinates": _coordinates(area) or _coordinates(row),
+            })
+    return regions
+
+
+def _regional_station(region):
+    """Select an explicit regional reference, never invent missing boat coordinates."""
+    state = str(region.get("state") or "").strip()
+    code = next((code for name, code in STATE_CODES.items() if name.casefold() == state.casefold()), state.upper())
+    stations = []
+    for station in _station_list("waterlevels", int(_now().timestamp()) // 3600):
+        coordinates = _coordinates({"latitude": station.get("lat"), "longitude": station.get("lng")})
+        if (str(station.get("state") or "").upper() != code or not coordinates
+                or station.get("greatlakes") or station.get("tidal") is False
+                or not str(station.get("id") or "").isdigit()):
+            continue
+        # Prefer a station explicitly named for the selected area/water body.
+        station_name = str(station.get("name") or "").casefold()
+        named_match = any(name and str(name).casefold() in station_name
+                          for name in (region.get("name"), region.get("water_body")))
+        stations.append((not named_match, str(station["id"]), station, coordinates))
+    if not stations:
+        return None
+    _, _, station, coordinates = min(stations, key=lambda item: (item[0], item[1]))
+    return {**{key: value for key, value in region.items() if key != "coordinates"}, **coordinates,
+            "selection": "Named NOAA station when available; otherwise first active tidal station by ID in the saved state",
+            "coordinate_basis": "NOAA regional reference station; exact trip coordinates were not recorded",
+            "resolution": "regional_station", "reference_station": {
+                "id": str(station["id"]), "name": station.get("name"), "state": station.get("state"),
+                "source": NOAA_STATIONS,
+            }, "notice": "Regional station conditions only. Distances are from the reference station, not the boat."}
+
+
 def _location(trip):
-    userTripService._expand_lake_locations([trip])
-    for location in trip["lake_locations"]:
-        lat, lon = _number(location.get("latitude")), _number(location.get("longitude"))
-        if lat is not None and lon is not None and -90 <= lat <= 90 and -180 <= lon <= 180:
+    # The shared helper discards non-ObjectId names. Preserve them for coastal lookup
+    # and leave the trip and shared helper unchanged for every other endpoint.
+    references = list(dict.fromkeys(str(ref).strip() for ref in trip.get("lake_locations") or [] if str(ref).strip()))
+    expanded = deepcopy(trip)
+    userTripService._expand_lake_locations([expanded])
+    for location in expanded["lake_locations"]:
+        coordinates = _coordinates(location)
+        if coordinates:
             return {"location_id": str(location["_id"]), "name": location.get("name"),
-                    "state": location.get("state"), "latitude": lat, "longitude": lon,
+                    "state": location.get("state"), **coordinates,
                     "selection": "First saved trip map location with valid coordinates"}
-    raise HTTPException(422, "The coastal trip needs a saved map location with valid latitude and longitude")
+    regions = _coastal_regions(references)
+    for region in regions:
+        if region["coordinates"]:
+            return {**{key: value for key, value in region.items() if key != "coordinates"},
+                    **region["coordinates"], "selection": "Saved coastal area/region coordinates",
+                    "resolution": "saved_coastal_coordinates", "coordinate_basis": "Saved coastal area/region coordinates"}
+    for region in regions:
+        try:
+            location = _regional_station(region)
+        except ProviderUnavailable:
+            raise HTTPException(503, "NOAA station metadata is unavailable; existing snapshots were preserved") from None
+        if location:
+            return location
+    raise HTTPException(422, "Could not resolve a coastal location. Save valid map coordinates or select an existing coastal area with a supported state.")
 
 
 def _response(trip_id):
