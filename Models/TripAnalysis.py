@@ -15,7 +15,7 @@ class AnalysisCard(AnalysisModel):
 
 
 class TripAnalysisNarrative(AnalysisModel):
-    trip_iq_score: int | None = Field(ge=0, le=100)
+    trip_iq_score: int = Field(ge=0, le=100, strict=True)
     score_explanation: str = Field(min_length=1, max_length=1200)
     summary: str = Field(min_length=1, max_length=3000)
     what_went_well: list[AnalysisCard] = Field(max_length=5)
